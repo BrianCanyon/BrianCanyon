@@ -1,0 +1,77 @@
+---
+title: "Project 1"
+Author: Brian Canyon
+output:
+  word_document: default
+  html_notebook: default
+  html_document:
+    df_print: paged
+---
+### Introduction
+
+The purpose of this project is to implement a generalized linear model that creates a binary classification for the type of species based on skull dimensions. The raw data contains four different variables that will be used to created the model. These variables include: species type(unknown, subterraneus, multiplex), skull length, width, height. Prior to diving into implementation of the model as well as results, some exploratory data analysis is needed to inspect the data.
+
+### Exploratory Data Analysis
+
+The overall purpose of EDA is to give the data a bit of a sanity check for outliers as well as attempt to forecast any possible inferences we can make prior to diving into model creation. 
+
+With that being said, the first change I made to the raw data was removing blank rows. I then gave each entry a unique Vole Skull ID and complied all of the data into one sheet in excel. Then I changed the name of the column headers to something far more digestible, which can be seen below. Following that I needed to look for any potential duplicates and/or outliers to ensure the raw data was accurate. Below is a table that offers a brief overview of what the raw data looks like following the above steps.
+
+Changes to raw data: 1. deleted blank rows. 2. Gave each skull a unique 'vole skull index'. 3. Complied the data into one sheet in excel. 4. Removed obvious outliers by looking at a summary of each numeric variables (ie. a few entries that are roughly 10x the mean for their group) 5. changed the names of the headers to something far more digestible.
+
+```{r echo=FALSE}
+library(dplyr)
+library(tidyverse)
+library(sjPlot)
+library(lme4)
+
+skull_data <- read.csv("C:\\Users\\j\\Downloads\\Vole Skulls.csv")
+skull_data2 <- read.csv("C:\\Users\\j\\OneDrive\\skull 2.csv")
+skull_data3 <- read.csv("C:\\Users\\j\\Documents\\Skull Unkown.csv")
+continuous <- select_if(skull_data, is.numeric)
+summary(continuous)
+
+
+```
+Now lets look at some visual representations of the data. Since the overarching problems is essentially binary classification, we can take a side by side look of the data and see if any inferences can be made about the skull dimensions of either species. 
+```{r echo=FALSE}
+plot(skull_data$Length[skull_data$ID == "subterraneus"], skull_data$Width[skull_data$ID == "subterraneus"], col = "red", xlab = "Skull Length", ylab = "Skull Width", main = "Blue = multiplex,  Red = subterraneus")
+points(skull_data$Length[skull_data$ID == "multiplex"], skull_data$Width[skull_data$ID == "multiplex"], col = "blue")
+
+plot(skull_data$Length[skull_data$ID == "subterraneus"], skull_data$Height[skull_data$ID == "subterraneus"], col = "red", xlab = "Skull Length", ylab = "Skull Height", main = "Blue = multiplex,  Red = subterraneus")
+points(skull_data$Length[skull_data$ID == "multiplex"], skull_data$Height[skull_data$ID == "multiplex"], col = "blue")
+
+```
+### Implementing the Generalized Linear Model
+
+I chose to implement a logistic regression GLM because the nature of this classification problem is binary. There are only two types of species in this data set so I determined this would be the best fit. In my model, I used each of the three variables given to predict the species of the unknown monkeys. 
+
+The output of implementing my model onto the unknown species resulting in a list of probabilities. I then changed the vector of probabilities into predictions by classifying by greater than or less than .5. With binary classification, a 1 represents Subterraneus species while a score of 0 represents the Multiplex species. 
+
+```{r echo=FALSE}
+
+skull_data2$ID <- as.factor(skull_data2$ID)
+
+model_1<- glm(ID ~ Width+Height+Length, data = skull_data2, family = binomial)
+model_1_probs <- predict(model_1, type = "response")
+model_1_prediction <- rep("subterraneus", nrow(skull_data2))
+model_1_prediction[model_1_probs < .5] <- "multiplex"
+
+table(model_1_prediction, skull_data2$ID)
+```
+After trying different combinations of variables I found that using each of the three given variables (or skull dimensions), led to the most accurate model. Other models I attempted led to a lower accuracy rate. The table above shows the amount of times the model inaccurately predicted the species on the training data, a total of 12 times. To speak on the usefulness of this model, I would say the model is largely accurate however it is not without error. When applied to the training data it accurately predicted the species 74/86 times. That's a rate of 86%.
+
+Lastly I will provide the vector of predictions in the same order that were placed in the raw data set.
+
+```{r echo=FALSE}
+skull_data2$ID <- as.factor(skull_data2$ID)
+
+model_1<- glm(ID ~ Length+Height+Width, data = skull_data2, family = binomial)
+model_1_probs <- predict(model_1, type = "response", skull_data3)
+model_1_prediction <- rep("subterraneus", nrow(skull_data3))
+model_1_prediction[model_1_probs < .5] <- "multiplex"
+
+print(model_1_prediction)
+```
+
+
