@@ -9,16 +9,12 @@ I'm a passionate Data Engineer with a solid foundation in building and optimizin
 - Collaborate with data scientists to deliver cutting-edge analytics solutions
 
 ### 📂 Current Projects:
-- Building predictive models to streamline operational costs
-- Integrating CI/CD workflows for data engineering projects
-- Developing Python scripts for data enrichment and visualization
+- Developing against the Reddit and yahoo APIs to create a local datawarehouse rich with stock related insights
 
 ### 💡 Certifications & Skills:
 - DP-900: Azure Data Fundamentals
 - COMPTIA Security+
-- Python, SQL, NoSQL, Databricks, Power Platform, CI/CD
 
-Let's connect and explore the world of data together!
 
 <!---
 BrianCanyon/BrianCanyon is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
